@@ -20,7 +20,7 @@ jobs:
 
       - run: pnpm install
 
-      - run: pnpm lint
+      - run: pnpm lint && pnpm typecheck
 
       - uses: supabase/setup-cli@v1
         with:

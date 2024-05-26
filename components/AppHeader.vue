@@ -2,7 +2,7 @@
   <nav class="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
     <UContainer class="flex items-center justify-between gap-4 py-4">
       <div>
-        <NuxtLink to="/" class="font-semibold">My Tasks</NuxtLink>
+        <NuxtLink to="/" class="font-semibold">My Links</NuxtLink>
       </div>
       <div class="flex items-center gap-4">
         <UDropdown v-if="user" :items :popper="{ placement: 'bottom-start' }">
