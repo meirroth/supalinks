@@ -28,7 +28,7 @@ jobs:
 
       - name: Start Supabase local development setup
         working-directory: ./server
-        run: supabase start
+        run: supabase db start
 
       - name: Verify generated types are checked in
         working-directory: ./server
