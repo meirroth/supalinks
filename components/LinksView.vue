@@ -123,6 +123,7 @@ const columns = [
   { key: 'from', label: 'From' },
   { key: 'to', label: 'To' },
   { key: 'created_at', label: 'Created' },
+  { key: 'clicks', label: 'Clicks' },
   { key: 'actions' },
 ]
 
@@ -130,6 +131,7 @@ const rows = computed(() => {
   return data.value?.map((link) => ({
     ...link,
     created_at: formatDate(link.created_at),
+    clicks: link.clicks[0].count,
   }))
 })
 
@@ -158,7 +160,7 @@ async function getLinks() {
   try {
     const { data, error } = await client
       .from('links')
-      .select('*')
+      .select('*, clicks(count)')
       .eq('user', user.value.id)
       .order('created_at', { ascending: false })
 
