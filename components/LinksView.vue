@@ -1,18 +1,26 @@
 <template>
   <div class="space-y-3">
-    <form class="flex space-x-2" @submit.prevent="createLink">
-      <UInput
-        v-model="from"
-        type="text"
-        placeholder="From"
-        required
-        autofocus
-      />
-      <UInput v-model="to" type="url" placeholder="To" required />
-      <UButton type="submit">Create</UButton>
-    </form>
+    <div class="flex justify-between">
+      <form class="flex space-x-2" @submit.prevent="createLink">
+        <UInput
+          v-model="from"
+          type="text"
+          placeholder="From"
+          required
+          autofocus
+        />
+        <UInput v-model="to" type="url" placeholder="To" required />
+        <UButton type="submit">Create</UButton>
+      </form>
 
-    <UTable v-if="data" :rows="data" />
+      <UInput
+        v-model="q"
+        placeholder="Filter links..."
+        icon="i-heroicons-magnifying-glass-20-solid"
+      />
+    </div>
+
+    <UTable v-if="filteredRows" :columns :rows="filteredRows" />
 
     <div v-else>
       <span v-if="!user">
@@ -45,6 +53,33 @@ const updating = ref<number[]>([])
 const deleting = ref<number[]>([])
 
 const { data, refresh, clear, status } = useAsyncData(async () => getLinks())
+
+const columns = [
+  { key: 'from', label: 'From' },
+  { key: 'to', label: 'To' },
+  { key: 'created_at', label: 'Created' },
+]
+
+const rows = computed(() => {
+  return data.value?.map((link) => ({
+    ...link,
+    created_at: formatDate(link.created_at),
+  }))
+})
+
+const q = ref('')
+
+const filteredRows = computed(() => {
+  if (!q.value) {
+    return rows.value
+  }
+
+  return rows.value?.filter((row) => {
+    return Object.values(row).some((value) => {
+      return String(value).toLowerCase().includes(q.value.toLowerCase())
+    })
+  })
+})
 
 watch(user, () => {
   if (!user.value) {
@@ -149,6 +184,16 @@ async function deleteLink(link: Link) {
   }
 
   deleting.value = deleting.value.filter((id) => id !== link.id)
+}
+
+function formatDate(date: string): string {
+  return new Date(date).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  })
 }
 </script>
 
