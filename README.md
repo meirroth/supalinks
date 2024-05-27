@@ -1,4 +1,24 @@
-# Supalinks - A Supabase + Nuxt 3 URL shortener example
+# Supalinks - A Supabase + Nuxt 3 URL shortener
+
+It includes:
+
+- Nuxt UI
+- Eslint and Prettier
+- Supabase CI/CD integration
+- Sign up and sign in with magic link using Supabase Auth
+- Create, read, update, and delete links
+- Click tracking
+
+Guide and inspiration from:
+
+- https://ui.nuxt.com/
+- https://supabase.nuxtjs.org/
+- https://supabase.com/docs/guides/cli/managing-environments
+- https://github.com/nuxt-modules/supabase/tree/main/demo
+- https://github.com/jahidanowar/shrty
+- https://github.com/Barbapapazes/url-shortener
+
+Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
 ## Database
 
