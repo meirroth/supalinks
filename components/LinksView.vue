@@ -20,7 +20,71 @@
       />
     </div>
 
-    <UTable v-if="filteredRows" :columns :rows="filteredRows" />
+    <UTable v-if="filteredRows" :columns :rows="filteredRows">
+      <template #from-data="{ row }">
+        <UInput
+          v-if="editing && editing.id === row.id"
+          v-model="editing.from"
+          type="text"
+          required
+        />
+        <NuxtLink
+          v-else
+          :to="`/${row.from}`"
+          target="_blank"
+          class="text-primary underline"
+        >
+          /{{ row.from }}
+        </NuxtLink>
+      </template>
+      <template #to-data="{ row }">
+        <UInput
+          v-if="editing && editing.id === row.id"
+          v-model="editing.to"
+          type="url"
+          required
+        />
+        <NuxtLink
+          v-else
+          :to="row.to"
+          external
+          target="_blank"
+          class="text-primary underline"
+        >
+          {{ row.to }}
+        </NuxtLink>
+      </template>
+      <template #actions-data="{ row }">
+        <div class="flex justify-end space-x-2">
+          <template v-if="editing && editing.id === row.id">
+            <UButton color="gray" variant="ghost" @click="doneEditing">
+              Cancel
+            </UButton>
+            <UButton
+              color="primary"
+              :loading="updating.includes(row.id)"
+              @click="updateLink(editing)"
+            >
+              Save
+            </UButton>
+          </template>
+          <template v-else>
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-trash-20-solid"
+              @click="deleteLink(row)"
+            />
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-pencil-square-20-solid"
+              @click="editLink(row)"
+            />
+          </template>
+        </div>
+      </template>
+    </UTable>
 
     <div v-else>
       <span v-if="!user">
@@ -49,6 +113,7 @@ const toast = useToast()
 const from = ref('')
 const to = ref('')
 
+const editing = ref<Link | null>(null)
 const updating = ref<number[]>([])
 const deleting = ref<number[]>([])
 
@@ -58,6 +123,7 @@ const columns = [
   { key: 'from', label: 'From' },
   { key: 'to', label: 'To' },
   { key: 'created_at', label: 'Created' },
+  { key: 'actions' },
 ]
 
 const rows = computed(() => {
@@ -112,7 +178,10 @@ async function getLinks() {
 }
 
 async function createLink() {
-  if (!from.value || !to.value) return
+  if (!isLinkValid(from.value, to.value)) {
+    return
+  }
+
   try {
     const { error } = await client
       .from('links')
@@ -135,8 +204,19 @@ async function createLink() {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function editLink(link: Link) {
+  editing.value = { ...link }
+}
+
+function doneEditing() {
+  editing.value = null
+}
+
 async function updateLink(link: Link) {
+  if (!isLinkValid(link.from, link.to)) {
+    return
+  }
+
   updating.value.push(link.id)
 
   try {
@@ -160,9 +240,9 @@ async function updateLink(link: Link) {
   }
 
   updating.value = updating.value.filter((id) => id !== link.id)
+  doneEditing()
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function deleteLink(link: Link) {
   deleting.value.push(link.id)
 
@@ -184,6 +264,27 @@ async function deleteLink(link: Link) {
   }
 
   deleting.value = deleting.value.filter((id) => id !== link.id)
+}
+
+function isLinkValid(from: string, to: string): boolean {
+  let error = ''
+  if (!from) {
+    error = 'From is required'
+  } else if (!to) {
+    error = 'To is required'
+  } else if (!/^[a-zA-Z0-9-]+$/.test(from)) {
+    error = 'From can only contain letters, numbers, and dashes'
+  } else if (!/^https?:\/\/.+\..+/.test(to)) {
+    error = 'To must be a valid URL'
+  }
+  if (error) {
+    toast.add({
+      color: 'red',
+      icon: 'i-heroicons-exclamation-circle-20-solid',
+      title: error,
+    })
+  }
+  return !error
 }
 
 function formatDate(date: string): string {
