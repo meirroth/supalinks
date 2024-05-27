@@ -1,19 +1,17 @@
 <template>
-  <UContainer>
-    <div class="mx-auto max-w-xs py-10">
-      <p>Redirecting...</p>
-    </div>
-  </UContainer>
+  <p>Redirecting...</p>
 </template>
 
 <script setup lang="ts">
 const from = useRoute().params.from as string
 
-const { data } = await useFetch(`/api/link/${from}`)
+const { data: link } = await useFetch(`/api/link/${from}`)
 
-if (!data.value) {
+if (link.value) {
+  $fetch(`/api/click/${link.value.id}`, { method: 'POST' })
+
+  await navigateTo(link.value.to, { external: true })
+} else {
   throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
 }
-
-await navigateTo(data.value.to, { external: true })
 </script>
