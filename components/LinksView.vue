@@ -297,20 +297,3 @@ function formatDate(date: string): string {
   })
 }
 </script>
-
-<style scoped>
-.list-move,
-.list-enter-active,
-.list-leave-active {
-  @apply transition-all duration-200 ease-in-out;
-}
-
-.list-enter-from,
-.list-leave-to {
-  @apply translate-x-8 opacity-0;
-}
-
-.list-leave-active {
-  @apply absolute;
-}
-</style>
