@@ -158,15 +158,12 @@ watch(user, () => {
 async function getLinks() {
   if (!user.value) return
   try {
-    const { data, error } = await client
+    const { data } = await client
       .from('links')
       .select('*, clicks(count)')
       .eq('user', user.value.id)
       .order('created_at', { ascending: false })
-
-    if (error) {
-      throw new Error(error.message)
-    }
+      .throwOnError()
 
     return data
   } catch (error: any) {
@@ -185,13 +182,10 @@ async function createLink() {
   }
 
   try {
-    const { error } = await client
+    await client
       .from('links')
       .insert({ from: from.value, to: to.value })
-
-    if (error) {
-      throw new Error(error.message)
-    }
+      .throwOnError()
 
     from.value = ''
     to.value = ''
@@ -222,14 +216,11 @@ async function updateLink(link: Link) {
   updating.value.push(link.id)
 
   try {
-    const { error } = await client
+    await client
       .from('links')
       .update({ from: link.from, to: link.to })
       .eq('id', link.id)
-
-    if (error) {
-      throw new Error(error.message)
-    }
+      .throwOnError()
 
     await refresh()
   } catch (error: any) {
@@ -249,11 +240,7 @@ async function deleteLink(link: Link) {
   deleting.value.push(link.id)
 
   try {
-    const { error } = await client.from('links').delete().eq('id', link.id)
-
-    if (error) {
-      throw new Error(error.message)
-    }
+    await client.from('links').delete().eq('id', link.id).throwOnError()
 
     await refresh()
   } catch (error: any) {
