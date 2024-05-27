@@ -7,21 +7,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Database } from '@/types/supabase'
-
-const client = useSupabaseClient<Database>()
-
 const from = useRoute().params.from as string
 
-const { data, error } = await client
-  .from('links')
-  .select('*')
-  .eq('from', from)
-  .single()
+const { data } = await useFetch(`/api/link/${from}`)
 
-if (error) {
+if (!data.value) {
   throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
 }
 
-await navigateTo(data.to, { external: true })
+await navigateTo(data.value.to, { external: true })
 </script>
