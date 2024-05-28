@@ -177,7 +177,7 @@ async function getLinks() {
 }
 
 async function createLink() {
-  if (!isLinkValid(from.value, to.value)) {
+  if (!user.value || !isLinkValid(from.value, to.value)) {
     return
   }
 
